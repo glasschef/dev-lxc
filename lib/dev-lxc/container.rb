@@ -15,6 +15,8 @@ module DevLXC
         puts "ERROR: Container '#{self.name}' does not exist."
         exit 1
       end      
+      self.set_config_item('lxc.rootfs',config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
+
       puts "Starting container '#{self.name}'"
       super
       wait(:running, 3)
@@ -34,7 +36,6 @@ module DevLXC
         puts "ERROR: Container '#{self.name}' network is not available."
         exit 1
       end
-            self.set_config_item(config_item('lxc.rootfs'),config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
 
     end
 
