@@ -565,14 +565,14 @@ module DevLXC
       base_container.clone(server.name, {:flags => LXC::LXC_CLONE_SNAPSHOT})
       server.container.load_config
       puts "Deleting SSH Server Host Keys"
-      server.container.set_config_item('lxc.rootfs',config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
+      server.container.set_config_item('lxc.rootfs',server.container.config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
       FileUtils.rm_f(Dir.glob("#{server.container.config_item('lxc.rootfs')}/etc/ssh/ssh_host*_key*"))
     end
 
     def get_product_download_info(server, product_name, product_options)
       server_type = @server_configs[server.name][:server_type]
       base_container = DevLXC::Container.new(@server_configs[server.name][:base_container_name])
-      base_container.set_config_item('lxc.rootfs',config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
+      base_container.set_config_item('lxc.rootfs',base_container.config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
       mixlib_install_platform_detection_path = "#{base_container.config_item('lxc.rootfs')}/mixlib-install-platform-detection"
       IO.write(mixlib_install_platform_detection_path, Mixlib::Install::Generator::Bourne.detect_platform_sh)
       platform_results = `chroot #{base_container.config_item('lxc.rootfs')} bash mixlib-install-platform-detection`
@@ -748,7 +748,7 @@ module DevLXC
       enterprise_name = @server_configs[server.name][:enterprise_name]
       chef_server_url = @config['chef-server'][:fqdn]
       supermarket_fqdn = @config['supermarket'][:fqdn]
-      server.container.set_config_item('lxc.rootfs',config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
+      server.container.set_config_item('lxc.rootfs',server.container.config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
 
       FileUtils.mkdir_p("#{server.container.config_item('lxc.rootfs')}/var/opt/delivery")
       FileUtils.touch("#{server.container.config_item('lxc.rootfs')}/var/opt/delivery/.telemetry.disabled")
@@ -797,7 +797,7 @@ module DevLXC
       automate_server_name = @server_configs.select {|name, config| config[:server_type] == 'automate'}.keys.first
       if automate_server_name
         automate_server = get_server(automate_server_name)
-        automate_server.container.set_config_item('lxc.rootfs',config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
+        automate_server.container.set_config_item('lxc.rootfs',automate_server.container.config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
 
         automate_credentials_files = Dir.glob("#{automate_server.container.config_item('lxc.rootfs')}/etc/delivery/*-credentials")
         automate_credentials_files.each_with_index do |automate_credentials_file, index|
@@ -838,7 +838,7 @@ module DevLXC
 
     def configure_chef_client(server, dot_chef_path)
       puts "Configuring Chef Client in container '#{server.name}'"
-      server.container.set_config_item('lxc.rootfs',config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
+      server.container.set_config_item('lxc.rootfs', server.container.config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
       FileUtils.mkdir_p("#{server.container.config_item('lxc.rootfs')}/etc/chef")
       chef_server_url = @server_configs[server.name][:chef_server_url]
       validation_client_name = @server_configs[server.name][:validation_client_name]
@@ -879,7 +879,7 @@ ssl_verify_mode :verify_none
     end
 
     def configure_chef_backend(server)
-      server.container.set_config_item('lxc.rootfs',config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
+      server.container.set_config_item('lxc.rootfs',server.container.config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
 
       FileUtils.mkdir_p("#{server.container.config_item('lxc.rootfs')}/var/opt/chef-backend")
       FileUtils.touch("#{server.container.config_item('lxc.rootfs')}/var/opt/chef-backend/.license.accepted")
@@ -900,7 +900,7 @@ ssl_verify_mode :verify_none
 
     def configure_chef_frontend(server)
       puts "Creating /etc/opscode/chef-server.rb"
-      server.container.set_config_item('lxc.rootfs',config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
+      server.container.set_config_item('lxc.rootfs',server.container.config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
 
       FileUtils.mkdir_p("#{server.container.config_item('lxc.rootfs')}/etc/opscode")
       leader_backend = get_server(@config['chef-backend'][:leader_backend])
@@ -933,7 +933,7 @@ ssl_verify_mode :verify_none
     end
 
     def configure_chef_server(server)
-       server.container.set_config_item('lxc.rootfs',config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
+       server.container.set_config_item('lxc.rootfs',server.container.config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
 
       if @config['chef-server'][:topology] == "standalone" || @config['chef-server'][:bootstrap_backend] == server.name
         case @server_configs[server.name][:chef_server_type]
@@ -990,7 +990,7 @@ ssl_verify_mode :verify_none
     end
 
     def configure_reporting(server)
-      server.container.set_config_item('lxc.rootfs',config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
+      server.container.set_config_item('lxc.rootfs',server.container.config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
 
       FileUtils.mkdir_p("#{server.container.config_item('lxc.rootfs')}/var/opt/opscode-reporting")
       FileUtils.touch("#{server.container.config_item('lxc.rootfs')}/var/opt/opscode-reporting/.license.accepted")
@@ -1004,14 +1004,14 @@ ssl_verify_mode :verify_none
     end
 
     def configure_push_jobs_server(server)
-     server.container.set_config_item('lxc.rootfs',config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
+     server.container.set_config_item('lxc.rootfs',server.container.config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
 
       server.run_command("opscode-push-jobs-server-ctl reconfigure")
       server.run_command("#{@server_configs[server.name][:chef_server_type]}-ctl reconfigure")
     end
 
     def configure_manage(server)
-            server.container.set_config_item('lxc.rootfs',config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
+            server.container.set_config_item('lxc.rootfs',server.container.config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
 
       FileUtils.mkdir_p("#{server.container.config_item('lxc.rootfs')}/var/opt/chef-manage")
       FileUtils.touch("#{server.container.config_item('lxc.rootfs')}/var/opt/chef-manage/.license.accepted")
@@ -1025,7 +1025,7 @@ ssl_verify_mode :verify_none
     end
 
     def configure_analytics(server)
-            server.container.set_config_item('lxc.rootfs',config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
+            server.container.set_config_item('lxc.rootfs',server.container.config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
 
       FileUtils.mkdir_p("#{server.container.config_item('lxc.rootfs')}/var/opt/opscode-analytics")
       FileUtils.touch("#{server.container.config_item('lxc.rootfs')}/var/opt/opscode-analytics/.license.accepted")
@@ -1044,7 +1044,7 @@ ssl_verify_mode :verify_none
     end
 
     def configure_compliance(server)
-            server.container.set_config_item('lxc.rootfs',config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
+            server.container.set_config_item('lxc.rootfs',server.container.config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
 
       FileUtils.mkdir_p("#{server.container.config_item('lxc.rootfs')}/var/opt/chef-compliance")
       FileUtils.touch("#{server.container.config_item('lxc.rootfs')}/var/opt/chef-compliance/.license.accepted")
@@ -1082,7 +1082,7 @@ ssl_verify_mode :verify_none
     end
 
     def configure_supermarket(server)
-            server.container.set_config_item('lxc.rootfs',config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
+            server.container.set_config_item('lxc.rootfs',server.container.config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
 
       if @config['chef-server'][:bootstrap_backend] && get_server(@config['chef-server'][:bootstrap_backend]).container.defined?
         chef_server_supermarket_config = JSON.parse(IO.read("#{get_server(@config['chef-server'][:bootstrap_backend]).container.config_item('lxc.rootfs')}/etc/opscode/oc-id-applications/supermarket.json"))
@@ -1099,7 +1099,7 @@ ssl_verify_mode :verify_none
     end
 
     def create_users_orgs_knife_configs(server, dot_chef_path)
-            server.container.set_config_item('lxc.rootfs',config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
+            server.container.set_config_item('lxc.rootfs',server.container.config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
 
       server_type = @server_configs[server.name][:server_type]
       # give time for all services to come up completely
@@ -1237,7 +1237,7 @@ ssl_verify_mode :verify_none
 
       puts "Creating chef-repo with pem files and knife.rb in the current directory"
       FileUtils.mkdir_p(dot_chef_path)
-      chef_server.container.set_config_item('lxc.rootfs',config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
+      chef_server.container.set_config_item('lxc.rootfs',server.container.config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
 
       pem_files = Dir.glob("#{chef_server.container.config_item('lxc.rootfs')}#{chef_server_dot_chef_path}/*.pem")
       pem_files.delete_if { |pem_file| pem_file.end_with?("/pivotal.pem") } unless pivotal
