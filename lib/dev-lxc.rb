@@ -35,6 +35,7 @@ module DevLXC
     # if base container is centos then `/etc/hosts` file needs to be modified so `hostname -f`
     # provides the FQDN instead of `localhost`
     if base_container.name.start_with?('b-centos-')
+      self.set_config_item('lxc.rootfs',config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
       IO.write("#{base_container.config_item('lxc.rootfs')}/etc/hosts", "127.0.0.1 localhost\n127.0.1.1 #{base_container.name}\n")
     end
 
@@ -59,6 +60,8 @@ module DevLXC
     base_container.save_config
     base_container.start
     puts "Installing packages in base container '#{base_container.name}'"
+    self.set_config_item('lxc.rootfs',config_item('lxc.rootfs').gsub('btrfs:','').gsub('overlay:',''))
+
     case base_container.name
     when "b-ubuntu-1204", "b-ubuntu-1404"
       base_container.run_command("apt-get update")
